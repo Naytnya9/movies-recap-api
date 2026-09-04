@@ -1,4 +1,5 @@
 import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
@@ -17,7 +18,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 @app.get("/")
 async def home():
-return {"message": "Movie Recap AI API is running with Gemini!"}
+    return {"message": "Movie Recap AI API is running with Gemini!"}
 
 @app.post("/recap")
 async def recap(movie: dict):
