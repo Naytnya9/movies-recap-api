@@ -7,7 +7,7 @@ from google import genai
 
 app = FastAPI()
 
-Allow Expo Snack / Web / Mobile apps to access this API
+Allow Expo Snack, Web, and Mobile apps to access this API
 
 app.add_middleware(
 CORSMiddleware,
