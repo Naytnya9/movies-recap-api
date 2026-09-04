@@ -1,5 +1,4 @@
 import os
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
@@ -11,46 +10,22 @@ CORSMiddleware,
 allow_origins=[""],
 allow_credentials=False,
 allow_methods=[""],
-allow_headers=["*"],
+allow_headers=["*"]
 )
 
-client = genai.Client(
-api_key=os.getenv("GEMINI_API_KEY")
-)
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 @app.get("/")
-def home():
+async def home():
 return {"message": "Movie Recap AI API is running with Gemini!"}
 
 @app.post("/recap")
 async def recap(movie: dict):
-
 transcript = movie.get("transcript", "")
 
-if not transcript:
-    return {
-        "success": False,
-        "error": "Transcript is required"
-    }
-
-prompt = f"""You are a professional movie recap writer.
-
-Read the following movie transcript and create a clear and interesting movie recap in Burmese language.
-
-Rules:
-
-- Write naturally in Burmese.
-- Explain the story in chronological order.
-- Include important characters and important events.
-- Do not invent information.
-- Make it suitable for a YouTube movie recap narration.
-
-Movie transcript:
-
-{transcript}
-"""
-
 try:
+    prompt = "You are a professional movie recap writer. Read the following movie transcript and create a clear and interesting movie recap in Burmese language. Write naturally in Burmese. Explain the story in chronological order. Do not invent information. Make it suitable for YouTube movie recap narration.\n\nMovie transcript:\n\n" + transcript
+
     response = client.models.generate_content(
         model="gemini-3.5-flash-lite",
         contents=prompt
