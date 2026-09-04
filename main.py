@@ -21,7 +21,7 @@ async def home():
     return {"message": "Movie Recap AI API is running with Gemini!"}
 
 @app.post("/recap")
-async def recap(movie: dict):
+    async def recap(movie: dict):
 transcript = movie.get("transcript", "")
 
 try:
