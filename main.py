@@ -14,3 +14,5 @@ async def home(): return {"message": "Movie Recap AI API is running with Gemini!
 
 @app.post("/recap")
 async def recap(movie: dict): return {"success": True, "recap": client.models.generate_content(model="gemini-3.5-flash-lite", contents="Write a Burmese movie recap for this transcript: " + movie.get("transcript", "")).text}
+@app.get("/test")
+async def test(): return {"success": True, "message": "CORS test successful!"}
