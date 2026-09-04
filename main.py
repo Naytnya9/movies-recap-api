@@ -22,7 +22,7 @@ async def home():
 
 @app.post("/recap")
     async def recap(movie: dict):
-transcript = movie.get("transcript", "")
+    transcript = movie.get("transcript", "")
 
 try:
     prompt = "You are a professional movie recap writer. Read the following movie transcript and create a clear and interesting movie recap in Burmese language. Write naturally in Burmese. Explain the story in chronological order. Do not invent information. Make it suitable for YouTube movie recap narration.\n\nMovie transcript:\n\n" + transcript
