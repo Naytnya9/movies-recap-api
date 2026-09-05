@@ -21,3 +21,6 @@ async def recap(movie: dict): return {"success": True, "recap": client.models.ge
 
 @app.post("/upload-video")
 async def upload_video(video: UploadFile = File(...)): return {"success": True, "message": "VIDEO UPLOAD SUCCESS!", "filename": video.filename}
+
+@app.get("/video-test")
+async def video_test(): return {"success": True, "message": "Video system ready!"}
