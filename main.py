@@ -39,7 +39,7 @@ return {
 
 ==========================================
 
-TRANSCRIPT → BURMESE RECAP
+TRANSCRIPT  BURMESE RECAP
 
 ==========================================
 
