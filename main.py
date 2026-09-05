@@ -22,7 +22,7 @@ api_key=os.getenv("GEMINI_API_KEY")
 
 @app.get("/")
 async def home():
-return {
+    return {
 "message": "Movie Recap AI API is running with Gemini!"
 }
 
