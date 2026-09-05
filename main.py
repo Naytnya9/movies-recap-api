@@ -1,6 +1,4 @@
 import os
-import time
-import tempfile
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
@@ -22,28 +20,4 @@ async def gemini_test(): return {"success": True, "result": client.models.genera
 async def recap(movie: dict): return {"success": True, "recap": client.models.generate_content(model="gemini-3.5-flash-lite", contents="Write a movie recap in Burmese language:\n\n" + movie.get("transcript", "")).text}
 
 @app.post("/upload-video")
-async def upload_video(video: UploadFile = File(...)):
-temp_path = None
-try:
-suffix = ".mp4"
-if video.filename and "." in video.filename:
-suffix = "." + video.filename.split(".")[-1]
-with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
-temp_path = temp_file.name
-while True:
-chunk = await video.read(1024 * 1024)
-if not chunk:
-break
-temp_file.write(chunk)
-gemini_file = client.files.upload(file=temp_path)
-while not gemini_file.state or gemini_file.state.name != "ACTIVE":
-time.sleep(5)
-gemini_file = client.files.get(name=gemini_file.name)
-prompt = "Watch this video carefully and create a detailed movie recap in Burmese language. Explain the story in chronological order. Describe important characters, events and plot twists. Do not invent information."
-response = client.models.generate_content(model="gemini-3.7-flash", contents=[gemini_file, prompt])
-return {"success": True, "recap": response.text}
-except Exception as e:
-return {"success": False, "error": str(e)}
-finally:
-if temp_path and os.path.exists(temp_path):
-os.remove(temp_path)
+async def upload_video(video: UploadFile = File(...)): return {"success": True, "message": "VIDEO UPLOAD SUCCESS!", "filename": video.filename}
