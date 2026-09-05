@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
 
@@ -17,3 +17,6 @@ async def test(): return {"success": True, "message": "CORS test successful!"}
 
 @app.post("/recap")
 async def recap(movie: dict): return {"success": True, "recap": client.models.generate_content(model="gemini-3.5-flash-lite", contents="Write a detailed movie recap in Burmese language. Explain the story in chronological order. Do not invent information.\n\nMovie transcript:\n\n" + movie.get("transcript", "")).text}
+
+@app.post("/upload-video")
+async def upload_video(video: UploadFile = File(...)): return {"success": True, "message": "Video received successfully!", "filename": video.filename, "content_type": video.content_type}
