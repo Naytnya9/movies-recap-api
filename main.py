@@ -28,7 +28,7 @@ async def home():
 
 @app.get("/test")
 async def test():
-return {
+    return {
 "success": True,
 "message": "CORS test successful!"
 }
