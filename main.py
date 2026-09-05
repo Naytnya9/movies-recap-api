@@ -34,7 +34,7 @@ async def recap(movie: dict): return {"success": True, "recap": client.models.ge
 
 @app.post("/upload-video")
 async def upload_video(video: UploadFile = File(...)):
-    temp_path = None
+    temp_path = None
 
     try:
     suffix = ".mp4"
