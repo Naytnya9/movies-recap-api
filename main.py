@@ -91,7 +91,7 @@ except Exception as e:
 
 ==========================================
 
-VIDEO → GEMINI → BURMESE RECAP
+VIDEO  GEMINI  BURMESE RECAP
 
 ==========================================
 
