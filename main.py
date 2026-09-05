@@ -27,14 +27,15 @@ async def upload_video(video: UploadFile = File(...)):
     temp_path = None
     try:
         suffix = ".mp4"
-        if video.filename and "." in video.filename:
+
+    if video.filename and "." in video.filename:
         suffix = "." + video.filename.split(".")[-1]
 
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
-    temp_path = temp_file.name
+        temp_path = temp_file.name
 
-    while True:
-        chunk = await video.read(1024 * 1024)
+        while True:
+            chunk = await video.read(1024 * 1024)
 
         if not chunk:
             break
