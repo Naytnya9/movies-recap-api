@@ -99,9 +99,8 @@ VIDEO  GEMINI  BURMESE RECAP
 async def upload_video(
 video: UploadFile = File(...)
 ):
-  
+
     temp_path = None
-  
     try:
 
     # Create temporary file
