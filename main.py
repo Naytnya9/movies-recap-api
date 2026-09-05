@@ -20,3 +20,6 @@ async def recap(movie: dict): return {"success": True, "recap": client.models.ge
 
 @app.post("/upload-video")
 async def upload_video(video: UploadFile = File(...)): return {"success": True, "message": "Video received successfully!", "filename": video.filename, "content_type": video.content_type}
+
+@app.get("/gemini-test")
+async def gemini_test(): return {"success": True, "result": client.models.generate_content(model="gemini-3.5-flash-lite", contents="Say hello in Burmese language").text}
