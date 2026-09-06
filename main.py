@@ -3,19 +3,33 @@ import time
 import tempfile
 import base64
 import wave
+import uuid
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from google import genai
 
 
 app = FastAPI()
 
+
+# Create folder for generated audio files
+os.makedirs("generated_audio", exist_ok=True)
+
+
+# Serve generated audio files
+app.mount(
+    "/audio",
+    StaticFiles(directory="generated_audio"),
+    name="audio"
+)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -170,10 +184,8 @@ async def video_test():
 @app.post("/generate-audio")
 async def generate_audio(data: dict):
 
-    audio_path = None
-
     try:
-        text = data.get("text", "")
+        text = data.get("text", "").strip()
 
         if not text:
             return {
@@ -200,25 +212,31 @@ async def generate_audio(data: dict):
             interaction.output_audio.data
         )
 
-        temp_audio = tempfile.NamedTemporaryFile(
-            delete=False,
-            suffix=".wav"
+        # Create unique filename
+        filename = f"recap_{uuid.uuid4().hex}.wav"
+
+        audio_path = os.path.join(
+            "generated_audio",
+            filename
         )
 
-        audio_path = temp_audio.name
-        temp_audio.close()
-
+        # Save PCM audio as WAV
         with wave.open(audio_path, "wb") as audio_file:
             audio_file.setnchannels(1)
             audio_file.setsampwidth(2)
             audio_file.setframerate(24000)
             audio_file.writeframes(audio_data)
 
-        return FileResponse(
-            audio_path,
-            media_type="audio/wav",
-            filename="movie_recap.wav"
+        audio_url = (
+            "https://movies-recap-api.onrender.com/audio/"
+            + filename
         )
+
+        return {
+            "success": True,
+            "message": "Audio generated successfully",
+            "audio_url": audio_url
+        }
 
     except Exception as e:
         return {
