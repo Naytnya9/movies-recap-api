@@ -19,12 +19,23 @@ app = FastAPI()
 # Create folder for generated audio files
 os.makedirs("generated_audio", exist_ok=True)
 
+# Create folder for generated video files
+os.makedirs("generated_video", exist_ok=True)
+
 
 # Serve generated audio files
 app.mount(
     "/audio",
     StaticFiles(directory="generated_audio"),
     name="audio"
+)
+
+
+# Serve generated video files
+app.mount(
+    "/video",
+    StaticFiles(directory="generated_video"),
+    name="video"
 )
 
 
@@ -241,6 +252,40 @@ async def generate_audio(data: dict):
         }
 
     except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+# Test whether FFmpeg is installed
+@app.get("/ffmpeg-test")
+async def ffmpeg_test():
+
+    try:
+
+        result = subprocess.run(
+            ["ffmpeg", "-version"],
+            capture_output=True,
+            text=True
+        )
+
+        return {
+            "success": True,
+            "ffmpeg_installed": result.returncode == 0,
+            "version": result.stdout[:500]
+        }
+
+    except FileNotFoundError:
+
+        return {
+            "success": False,
+            "ffmpeg_installed": False,
+            "error": "FFmpeg is not installed on this server"
+        }
+
+    except Exception as e:
+
         return {
             "success": False,
             "error": str(e)
