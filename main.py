@@ -4,6 +4,8 @@ import tempfile
 import base64
 import wave
 import uuid
+import subprocess
+import shutil
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
