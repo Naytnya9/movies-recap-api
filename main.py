@@ -290,3 +290,158 @@ async def ffmpeg_test():
             "success": False,
             "error": str(e)
         }
+@app.post("/generate-recap-video")
+async def generate_recap_video(
+    video: UploadFile = File(...),
+    audio_filename: str = ""
+):
+
+    temp_video_path = None
+    output_path = None
+
+    try:
+
+        # Check audio filename
+        if not audio_filename:
+            return {
+                "success": False,
+                "error": "No audio filename provided"
+            }
+
+
+        # Find generated audio file
+        audio_path = os.path.join(
+            "generated_audio",
+            audio_filename
+        )
+
+
+        if not os.path.exists(audio_path):
+            return {
+                "success": False,
+                "error": "Audio file not found"
+            }
+
+
+        # Get video extension
+        suffix = ".mp4"
+
+        if video.filename and "." in video.filename:
+            suffix = "." + video.filename.split(".")[-1]
+
+
+        # Save uploaded video temporarily
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=suffix
+        ) as temp_file:
+
+            temp_video_path = temp_file.name
+
+
+            while True:
+
+                chunk = await video.read(1024 * 1024)
+
+                if not chunk:
+                    break
+
+                temp_file.write(chunk)
+
+
+        # Create output filename
+        output_filename = (
+            f"recap_video_{uuid.uuid4().hex}.mp4"
+        )
+
+
+        output_path = os.path.join(
+            "generated_video",
+            output_filename
+        )
+
+
+        # Combine video + AI voice using FFmpeg
+        command = [
+
+            "ffmpeg",
+
+            "-y",
+
+            "-i",
+            temp_video_path,
+
+            "-i",
+            audio_path,
+
+            "-map",
+            "0:v:0",
+
+            "-map",
+            "1:a:0",
+
+            "-c:v",
+            "copy",
+
+            "-c:a",
+            "aac",
+
+            "-shortest",
+
+            output_path
+
+        ]
+
+
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True
+        )
+
+
+        if result.returncode != 0:
+
+            return {
+                "success": False,
+                "error": result.stderr[-1000:]
+            }
+
+
+        video_url = (
+            "https://movies-recap-api.onrender.com/video/"
+            + output_filename
+        )
+
+
+        return {
+
+            "success": True,
+
+            "message": "Recap video generated successfully!",
+
+            "video_url": video_url
+
+        }
+
+
+    except Exception as e:
+
+        return {
+
+            "success": False,
+
+            "error": str(e)
+
+        }
+
+
+    finally:
+
+        # Delete temporary uploaded video
+        if (
+            temp_video_path
+            and os.path.exists(temp_video_path)
+        ):
+
+            os.remove(temp_video_path)
