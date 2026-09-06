@@ -1,6 +1,8 @@
 import os
 import time
 import tempfile
+import base64
+import wave
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -162,3 +164,53 @@ async def video_test():
         "success": True,
         "message": "Video system ready!"
     }
+
+@app.post("/generate-audio")
+async def generate_audio(data: dict):
+
+    try:
+        text = data.get("text", "")
+
+        if not text:
+            return {
+                "success": False,
+                "error": "No text provided"
+            }
+
+        interaction = client.interactions.create(
+            model="gemini-3.1-flash-tts-preview",
+            input=text,
+            response_format={
+                "type": "audio"
+            },
+            generation_config={
+                "speech_config": [
+                    {
+                        "voice": "Kore"
+                    }
+                ]
+            }
+        )
+
+        audio_data = base64.b64decode(
+            interaction.output_audio.data
+        )
+
+        audio_path = "/tmp/recap.wav"
+
+        with wave.open(audio_path, "wb") as audio_file:
+            audio_file.setnchannels(1)
+            audio_file.setsampwidth(2)
+            audio_file.setframerate(24000)
+            audio_file.writeframes(audio_data)
+
+        return {
+            "success": True,
+            "message": "Audio generated successfully"
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
