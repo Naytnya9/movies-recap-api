@@ -6,6 +6,7 @@ import wave
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from google import genai
 
 
@@ -165,8 +166,11 @@ async def video_test():
         "message": "Video system ready!"
     }
 
+
 @app.post("/generate-audio")
 async def generate_audio(data: dict):
+
+    audio_path = None
 
     try:
         text = data.get("text", "")
@@ -196,7 +200,13 @@ async def generate_audio(data: dict):
             interaction.output_audio.data
         )
 
-        audio_path = "/tmp/recap.wav"
+        temp_audio = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".wav"
+        )
+
+        audio_path = temp_audio.name
+        temp_audio.close()
 
         with wave.open(audio_path, "wb") as audio_file:
             audio_file.setnchannels(1)
@@ -204,10 +214,11 @@ async def generate_audio(data: dict):
             audio_file.setframerate(24000)
             audio_file.writeframes(audio_data)
 
-        return {
-            "success": True,
-            "message": "Audio generated successfully"
-        }
+        return FileResponse(
+            audio_path,
+            media_type="audio/wav",
+            filename="movie_recap.wav"
+        )
 
     except Exception as e:
         return {
